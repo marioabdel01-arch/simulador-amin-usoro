@@ -23,8 +23,13 @@ necesita MATLAB ni instalar nada.
     congelado durante el transitorio.
 - **Pruebas:** rampas de 90 a 70 % y de 70 a 90 % a 10 %/min, y el 75 %
   constante.
-- **Opciones:** λ, β, la ley corregida o la impresa en el artículo (con su
-  errata de signo) y la duración.
+- **Opciones:** λ, β y la duración.
+- **Exportar:** al pausar o terminar una corrida se descargan un informe en PDF
+  (configuración, las seis gráficas e índices), los datos en CSV
+  (cada 1 s: demanda, salidas, consignas y mandos aplicados; la configuración y
+  los índices van en el encabezado, en líneas que empiezan con `#`) y las seis
+  gráficas en PNG. En MATLAB:
+  `T = readtable('archivo.csv', 'CommentStyle', '#');`
 - **Pestaña «Planta»:** el esquema de la unidad con los valores del modelo en
   el instante actual.
 
@@ -57,6 +62,12 @@ node verificacion/verifica.js
         width="100%" height="1100" style="border:0"></iframe>
 ```
 
+## Licencia
+
+[MIT](LICENSE): se puede usar, copiar y modificar libremente, siempre que se
+conserve el aviso de autoría. Si lo usa en un trabajo académico, cite la
+reproducción.
+
 ## Créditos
 
 - Usoro, P. B. (1977). *Modeling and simulation of a drum boiler-turbine power
@@ -75,3 +86,6 @@ node verificacion/verifica.js
 Reproducción y simulador: Ing. Mario Abdel Guerra Pérez y Dr. Enrique
 Quintero-Mármol Márquez, TecNM/CENIDET, Departamento de Ingeniería
 Electrónica.
+
+El PDF se genera con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1 (licencia MIT),
+incluido en `js/jspdf.umd.min.js`.
