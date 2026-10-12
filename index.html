@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador STC Amin–Usoro</title>
+<meta name="description" content="Simulador en línea de la reproducción del controlador auto-sintonizable multivariable de Amin, Masada y Womack (1984) sobre el modelo de 47 estados de la planta termoeléctrica de 600 MW de Usoro (1977).">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<header class="cab">
+  <div class="cab-txt">
+    <h1>Simulador: reproducción de Amin, Masada y Womack (1984)</h1>
+    <p>Controlador auto-sintonizable multivariable sobre el modelo de 47 estados de la unidad termoeléctrica de 600 MW de Usoro (1977). Corre por completo en el navegador.</p>
+  </div>
+  <div class="cab-inst">TecNM / CENIDET · Departamento de Ingeniería Electrónica</div>
+</header>
+
+<main class="disp">
+  <aside class="lado">
+    <section class="caja">
+      <h2>Qué simular</h2>
+      <label>Prueba
+        <select id="prueba">
+          <option value="90,70">90 → 70 % (10 %/min)</option>
+          <option value="70,90">70 → 90 % (10 %/min)</option>
+          <option value="75,75">75 % constante</option>
+        </select>
+      </label>
+      <label>Controlador
+        <select id="ctrl">
+          <option value="pi">PI de Usoro (control original)</option>
+          <option value="stc" selected>STC (auto-sintonizable)</option>
+          <option value="mstc">STC modificado (tabla por carga)</option>
+        </select>
+      </label>
+      <div class="fila2">
+        <label title="Ponderación del mando, Q' = √λ·I. El artículo no publica su valor; la reproducción usa 0,5.">λ
+          <input id="lam" type="number" value="0.5" min="0" step="0.1">
+        </label>
+        <label title="Factor de olvido del estimador RLS. El artículo no lo publica; la reproducción usa 0,99.">β
+          <input id="beta" type="number" value="0.99" min="0.5" max="1" step="0.005">
+        </label>
+      </div>
+      <label title="Corregida: la que se deduce del criterio. Impresa: la de la p. 344 del artículo, con una errata de signo.">Ley de control
+        <select id="ley">
+          <option value="0">corregida</option>
+          <option value="1">impresa (con la errata)</option>
+        </select>
+      </label>
+      <label>Duración
+        <select id="dur">
+          <option value="800">800 s (artículo)</option>
+          <option value="1600">1600 s</option>
+          <option value="2400">2400 s</option>
+        </select>
+      </label>
+      <label class="chk"><input id="base" type="checkbox" checked> Dibujar el PI de Usoro de fondo</label>
+    </section>
+
+    <section class="caja">
+      <h2>Marcha</h2>
+      <label>Velocidad
+        <select id="vel">
+          <option value="1">1× (tiempo real)</option>
+          <option value="5">5×</option>
+          <option value="20" selected>20×</option>
+          <option value="0">máxima</option>
+        </select>
+      </label>
+      <div class="botones">
+        <button id="btIni" class="prim">Iniciar</button>
+        <button id="btRei">Reiniciar</button>
+      </div>
+      <div class="barra"><div id="avance"></div></div>
+      <div id="fase" class="fase listo">listo</div>
+      <div id="aviso" class="aviso"></div>
+    </section>
+
+    <section class="caja">
+      <h2>Estado del controlador</h2>
+      <table class="estado" id="estado"></table>
+    </section>
+  </aside>
+
+  <section class="der">
+    <nav class="pestanas" role="tablist">
+      <button class="pest activa" data-p="res" role="tab">Resumen</button>
+      <button class="pest" data-p="pla" role="tab">Planta</button>
+      <button class="pest" data-p="acerca" role="tab">Acerca de</button>
+    </nav>
+
+    <div class="pagina activa" id="p-res">
+      <div class="leyenda" id="leyenda"></div>
+      <div class="rejilla">
+        <canvas id="g0"></canvas><canvas id="g1"></canvas><canvas id="g2"></canvas>
+        <canvas id="g3"></canvas><canvas id="g4"></canvas><canvas id="g5"></canvas>
+      </div>
+    </div>
+
+    <div class="pagina" id="p-pla">
+      <div class="esquema" id="esquema">
+        <img src="img/esquema_planta.png" alt="Esquema de la unidad termoeléctrica de 600 MW" width="1284" height="634">
+      </div>
+      <p class="nota">Esquema de la unidad de 600 MW (Usoro, 1977), tomado de Quintero-Mármol (2025). Valores del modelo de 47 estados en el instante actual. Azul: mandos del controlador. Amarillo: apertura de las válvulas.</p>
+    </div>
+
+    <div class="pagina" id="p-acerca">
+      <article class="acerca">
+        <h2>Qué es</h2>
+        <p>Este simulador reproduce el trabajo de Amin, Masada y Womack (1984), que aplicaron un controlador auto-sintonizable (STC) multivariable a la caldera de la unidad termoeléctrica de 600 MW modelada por Usoro (1977). El controlador regula a la vez la temperatura del vapor sobrecalentado (TSSO), la del recalentado (TRHO) y la presión del vapor (PSSO), manipulando la demanda maestra de caldera (CBMD), la inclinación de quemadores (CXGG) y la atemperación del sobrecalentador (CWSY).</p>
+        <h2>Qué hay dentro</h2>
+        <ul>
+          <li><b>Planta:</b> el modelo no lineal de 47 estados de Usoro con sus lazos PI originales, integrado con Runge–Kutta de cuarto orden y paso de 0,1 s.</li>
+          <li><b>Modelo del controlador:</b> ARX 3×3 de orden 5, retardo de un periodo y periodo de 20 s, identificado al 75 % de carga en lazo abierto con 10 corridas de 400 s.</li>
+          <li><b>STC:</b> mínimos cuadrados recursivos con factor de olvido β y ley de varianza mínima generalizada (Clarke y Gawthrop, 1975; Koivo, 1980), con ponderación λ del mando. El estimador arranca con la covarianza con que termina la identificación.</li>
+          <li><b>STC modificado:</b> una tabla de parámetros cada 5 % de carga (70 a 90 %) que conmuta en los puntos medios; el estimador se apaga durante la rampa y 130 s después.</li>
+          <li><b>Pruebas:</b> las dos rampas del artículo, de 90 a 70 % y de 70 a 90 % a 10 %/min, y el 75 % constante.</li>
+        </ul>
+        <h2>Verificación</h2>
+        <p>El código de este sitio es una traducción a JavaScript del simulador en MATLAB de la reproducción. Las seis corridas del artículo (PI, STC y STC modificado en las dos rampas) coinciden con las de MATLAB con diferencias menores a 10⁻⁶ °R y psia, y los índices IAE son idénticos.</p>
+        <h2>Créditos</h2>
+        <ul class="refs">
+          <li>Usoro, P. B. (1977). <i>Modeling and simulation of a drum boiler-turbine power plant under emergency state control</i> [Tesis de maestría, Massachusetts Institute of Technology].</li>
+          <li>Quintero-Mármol Márquez, E. (2025). <i>Plantas termoeléctricas: análisis dinámico, modelado, simulación y control</i>. TecNM/CENIDET. (Esquema de la planta.)</li>
+          <li>Quintero-Mármol Márquez, E. (2026). <i>Programación asistida por inteligencia artificial generativa de modelos de proceso para plantas termoeléctricas: el caso del modelo Usoro de 47.º orden</i> [Documento de trabajo]. TecNM/CENIDET. (Conversión del modelo de FORTRAN 77 a MATLAB.)</li>
+          <li>Amin, M., Masada, G. Y., y Womack, B. F. (1984). Application of a multivariable self-tuning controller to a power plant boiler. <i>Proceedings of the 1984 American Control Conference</i>, 339–346.</li>
+          <li>Reproducción y simulador: Ing. Mario Abdel Guerra Pérez y Dr. Enrique Quintero-Mármol Márquez, TecNM/CENIDET.</li>
+        </ul>
+      </article>
+    </div>
+
+    <section class="caja lectura">
+      <h2>Lectura: salidas e índices integrados hasta t</h2>
+      <div class="tabla-env"><table id="lectura"></table></div>
+    </section>
+  </section>
+</main>
+
+<footer class="pie">Reproducción de Amin et al. (1984) · Modelo de Usoro (1977) · TecNM/CENIDET</footer>
+
+<script src="js/funciones.js"></script>
+<script src="js/digpte47.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/datos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
