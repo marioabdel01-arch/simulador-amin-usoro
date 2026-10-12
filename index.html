@@ -142,12 +142,6 @@ table.estado td:last-child { text-align: right; font-variant-numeric: tabular-nu
           <input id="beta" type="number" value="0.99" min="0.5" max="1" step="0.005">
         </label>
       </div>
-      <label title="Corregida: la que se deduce del criterio. Impresa: la de la p. 344 del artículo, con una errata de signo.">Ley de control
-        <select id="ley">
-          <option value="0">corregida</option>
-          <option value="1">impresa (con la errata)</option>
-        </select>
-      </label>
       <label>Duración
         <select id="dur">
           <option value="800">800 s (artículo)</option>
@@ -1520,7 +1514,7 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
     return { pctIni: pr[0], pctFin: pr[1], ctrl: $('ctrl').value,
              lambda: Math.max(0, parseFloat($('lam').value) || 0),
              beta: Math.min(1, Math.max(0.5, parseFloat($('beta').value) || 0.99)),
-             literal: $('ley').value === '1', dur: Number($('dur').value) };
+             literal: false, dur: Number($('dur').value) };
   }
   const colorCtrl = (c) => (c === 'pi' ? C.pi : c === 'stc' ? C.stc : C.mod);
   const nombreCtrl = (c) => ({ pi: 'PI de Usoro', stc: 'STC', mstc: 'STC modificado' }[c]);
@@ -1652,7 +1646,6 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
       let d = 0; for (let i = 0; i < S.E.th.length; i++) for (let j = 0; j < S.E.th[i].length; j++) d += (S.E.th[i][j] - R.th0[i][j]) ** 2;
       f.push(['‖Δθ‖', num(Math.sqrt(d), 3)]);
       f.push(['λ / β', num(S.lambda, 3) + ' / ' + num(S.E.beta, 3)]);
-      f.push(['ley', S.literal ? 'impresa' : 'corregida']);
     }
     $('estado').innerHTML = f.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('');
   }
@@ -1722,7 +1715,7 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
     while (R.t < objetivo && performance.now() - t0 < 28) { sigue = Sim.avanza(R); if (!sigue) break; }
     actualiza();
     if (R.diverge) { corriendo = false; $('btIni').textContent = 'Iniciar'; fase('divergio', 'divergió');
-      aviso('La planta salió del rango físico en t = ' + num(R.t, 1) + ' s.' + (R.cfg.literal ? ' Es lo que hace la ley impresa con la errata de signo.' : '')); return; }
+      aviso('La planta salió del rango físico en t = ' + num(R.t, 1) + ' s.'); return; }
     if (!sigue || R.i > R.n) { corriendo = false; $('btIni').textContent = 'Iniciar'; fase('terminado'); return; }
     requestAnimationFrame(paso_);
   }
@@ -1732,7 +1725,7 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
   function reiniciar() { corriendo = false; R = null; sucio = true; $('btIni').textContent = 'Iniciar'; fase('listo'); aviso(''); actualiza(); }
 
   // ---------------------------------------------------------------- eventos
-  ['prueba', 'ctrl', 'lam', 'beta', 'ley', 'dur'].forEach(id => $(id).addEventListener('change', () => {
+  ['prueba', 'ctrl', 'lam', 'beta', 'dur'].forEach(id => $(id).addEventListener('change', () => {
     sucio = true;
     if (!corriendo) { if (R && R.i <= R.n && !R.diverge && R.tc.length) aviso('Los cambios se aplican al pulsar Reiniciar o en la siguiente corrida.'); else { R = null; actualiza(); } }
     else aviso('Los cambios se aplican en la siguiente corrida.');
