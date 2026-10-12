@@ -21,8 +21,12 @@ necesita MATLAB ni instalar nada.
     olvido β, y ley de varianza mínima generalizada con ponderación λ;
   - el STC modificado: tabla de parámetros cada 5 % de carga y estimador
     congelado durante el transitorio.
-- **Pruebas:** rampas de 90 a 70 % y de 70 a 90 % a 10 %/min, y el 75 %
-  constante.
+- **Pruebas:**
+  - las cuatro rampas de carga de Usoro (1977, pruebas V.1 a V.4): de 100 a
+    77,5 %, de 77,5 a 50 %, de 50 a 77,5 % y de 77,5 a 100 % a 15 %/min, con su
+    control PI original, su estado inicial y la planta completa;
+  - las dos rampas de Amin et al. (1984): de 90 a 70 % y de 70 a 90 % a
+    10 %/min, donde se comparan el PI, el STC y el STC modificado.
 - **Opciones:** λ, β y la duración.
 - **Exportar:** al pausar o terminar una corrida se descargan un informe en PDF
   (configuración, las seis gráficas e índices), los datos en CSV
@@ -40,9 +44,12 @@ necesita MATLAB ni instalar nada.
 ## Verificación
 
 El código es una traducción a JavaScript del simulador en MATLAB de la
-reproducción. Las seis corridas del artículo (PI, STC y STC modificado en las
-dos rampas) coinciden con las de MATLAB con diferencias menores a 10⁻⁶ en las
-salidas, y los índices IAE son idénticos. Para comprobarlo:
+reproducción. Las seis corridas del artículo de Amin (PI, STC y STC modificado
+en las dos rampas) coinciden con las de MATLAB con diferencias menores a 10⁻⁶
+en las salidas, y los índices IAE son idénticos. En las cuatro pruebas de
+Usoro, las 24 variables que él registra coinciden con MATLAB
+(`pte47_run(N, 'clampStates', true)`) con un error relativo menor a 10⁻¹⁰.
+Para comprobarlo:
 
 ```
 node verificacion/verifica.js
