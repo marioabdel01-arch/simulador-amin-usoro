@@ -31,9 +31,11 @@ necesita MATLAB ni instalar nada.
   gráficas en PNG. En MATLAB:
   `T = readtable('archivo.csv', 'CommentStyle', '#');`
 - **Pestaña «Planta»:** el esquema de la unidad con los valores del modelo en
-  el instante actual y un panel de gráficas por área (caldera, sobrecalentador,
-  recalentador, turbina, condensador y agua de alimentación), que se abre al
-  pulsar el equipo en el esquema o su botón.
+  el instante actual y un panel de gráficas por área, que se abre al pulsar el
+  equipo en el esquema o su botón. Los paneles muestran las 24 variables que
+  registra y grafica Usoro (1977), repartidas entre caldera, hogar y
+  ventiladores, sobrecalentador, recalentador, turbina, condensador y agua de
+  alimentación.
 
 ## Verificación
 

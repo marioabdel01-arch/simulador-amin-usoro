@@ -93,13 +93,13 @@ table.estado td:last-child { text-align: right; font-variant-numeric: tabular-nu
 .barra-paneles button.activa { background: var(--guinda); border-color: var(--guinda); color: #fff; }
 .esquema .zona { position: absolute; padding: 0; background: transparent; border: 2px solid transparent; border-radius: 6px; cursor: pointer; }
 .esquema .zona:hover, .esquema .zona:focus-visible { border-color: var(--acento); background: rgba(42, 120, 214, .08); }
-.panel { position: absolute; top: 3%; left: 50%; transform: translateX(-50%); width: min(760px, 96%); z-index: 5;
+.panel { position: absolute; top: 3%; left: 50%; transform: translateX(-50%); width: min(860px, 96%); z-index: 5;
   background: #c9ccd3; border: 1px solid #8a8d99; border-radius: 6px; box-shadow: 0 8px 28px rgba(0, 0, 0, .28); }
 .panel[hidden] { display: none; }
 .panel-cab { display: flex; justify-content: space-between; align-items: center; background: var(--guinda); color: #fff;
   padding: 5px 6px 5px 12px; border-radius: 6px 6px 0 0; cursor: move; font-weight: 600; font-size: .92rem; user-select: none; touch-action: none; }
 .panel-cab button { background: transparent; color: #fff; border: 0; font-size: 1.25rem; line-height: 1; padding: 0 8px; cursor: pointer; }
-.panel-cuerpo { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; }
+.panel-cuerpo { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 6px; padding: 6px; }
 .panel .pg { background: #fff; border: 1px solid #a9acb6; border-radius: 3px; padding: 2px 2px 4px; }
 .panel .pg canvas { width: 100%; height: 175px; display: block; }
 .pley { font-size: .74rem; text-align: center; color: var(--tinta); }
@@ -124,7 +124,7 @@ table.estado td:last-child { text-align: right; font-variant-numeric: tabular-nu
 @media (max-width: 900px) {
   .panel { position: fixed; top: 8px !important; left: 8px !important; right: 8px; width: auto; transform: none !important; max-height: calc(100vh - 16px); overflow-y: auto; }
   .panel-cab { cursor: default; }
-  .panel-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .panel-cuerpo { grid-template-columns: minmax(0, 1fr) !important; }
   .disp { grid-template-columns: minmax(0, 1fr); padding: 10px 16px; }
   .rejilla { grid-template-columns: minmax(0, 1fr); }
   .rejilla canvas { height: 190px; }
@@ -246,7 +246,7 @@ table.estado td:last-child { text-align: right; font-variant-numeric: tabular-nu
           <li><b>Modelo del controlador:</b> ARX 3×3 de orden 5, retardo de un periodo y periodo de 20 s, identificado al 75 % de carga en lazo abierto con 10 corridas de 400 s.</li>
           <li><b>STC:</b> mínimos cuadrados recursivos con factor de olvido β y ley de varianza mínima generalizada (Clarke y Gawthrop, 1975; Koivo, 1980), con ponderación λ del mando. El estimador arranca con la covarianza con que termina la identificación.</li>
           <li><b>STC modificado:</b> una tabla de parámetros cada 5 % de carga (70 a 90 %) que conmuta en los puntos medios; el estimador se apaga durante la rampa y 130 s después.</li>
-          <li><b>Paneles por área:</b> en la pestaña «Planta», al pulsar un equipo se abre un panel con cuatro gráficas de esa área (caldera, sobrecalentador, recalentador, turbina, condensador y agua de alimentación), con el PI de Usoro de fondo.</li>
+          <li><b>Paneles por área:</b> en la pestaña «Planta», al pulsar un equipo se abre un panel con las gráficas de esa área. Son las 24 variables que registra y grafica Usoro (1977), repartidas entre caldera, hogar y ventiladores, sobrecalentador, recalentador, turbina, condensador y agua de alimentación, con el PI de Usoro de fondo.</li>
           <li><b>Pruebas:</b> las dos rampas del artículo, de 90 a 70 % y de 70 a 90 % a 10 %/min, y el 75 % constante.</li>
         </ul>
         <h2>Verificación</h2>
@@ -1706,10 +1706,7 @@ function digpte47(t, x, P, conLog) {
     nfp,cgrd,cfnd,twwm,nfd,nid,nrp,ncp,
     tsso,trho,psso,cbmd,cxgg,cwsy,
     ktss,ktrh,kpsso,ldc,
-    tsso_m,trho_m,psso_m,
-    // 38.. variables para los paneles por area (no estan en el registro de MATLAB)
-    pdrs,tdrs,wfl,war,wdrs,tpso,ppso,wsy,prho,wgr,
-    whp,p1st,pcn,tcn,wcp,wfw,wsso,thho,teco,agv];
+    tsso_m,trho_m,psso_m];
   return [xdot, ylog];
 }
 
@@ -2282,44 +2279,32 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
 
 
   // ---------------------------------------------------------------- paneles por area (como el programa de Galindo)
-  // Indices (base 0) del registro de digpte47: 0..37 = registro de MATLAB; 38.. = variables para paneles.
-  const Z = { ntr: 1, mwo: 2, vdrw: 9, vdew: 10, hrho: 14, nfp: 17, cgrd: 18, twwm: 20, ncp: 24,
-              tsso: 25, trho: 26, psso: 27, cxgg: 29, cwsy: 30, ktss: 31, ktrh: 32, kpsso: 33, ldc: 34,
-              pdrs: 38, tdrs: 39, wfl: 40, war: 41, wdrs: 42, tpso: 43, ppso: 44, wsy: 45, prho: 46, wgr: 47,
-              whp: 48, p1st: 49, pcn: 50, tcn: 51, wcp: 52, wfw: 53, wsso: 54, thho: 55, teco: 56, agv: 57 };
-  const C2 = '#2e8b57';
-  // cada grafica: titulo y series [{v: indice o funcion(z), n: nombre, c: 'ctl'|'2'|'ref'}]
+  // Las 24 variables que registra y grafica Usoro (1977), columnas 2..25 de su registro (pte47_plot),
+  // repartidas por area de la planta. Indice = posicion (base 0) en el ylog de digpte47.
+  const U = (i, tit) => ({ tit, s: [{ v: i, n: tit.split(',')[0].toLowerCase() }] });
   const PANELES = {
     cal: { tit: 'Panel de la caldera', rect: [78, 132, 242, 248], graf: [
-      { tit: 'Presión del domo (psia)', s: [{ v: Z.pdrs, n: 'domo' }] },
-      { tit: 'Volumen de agua del domo (ft³)', s: [{ v: Z.vdrw, n: 'agua' }] },
-      { tit: 'Flujo de combustible (lb/s)', s: [{ v: Z.wfl, n: 'combustible' }] },
-      { tit: 'Temperaturas (°R)', s: [{ v: Z.twwm, n: 'metal de la pared de agua' }, { v: Z.tdrs, n: 'saturación en el domo', c: '2' }] }] },
+      { tit: 'Demanda maestra de caldera, c3md (V)', s: [{ v: 5, n: 'c3md (PI de Usoro fuera de lazo)', nPropio: true }, { v: 28, n: 'CBMD aplicado por el STC', c: '2', soloSTC: true }] }, U(7, 'Control de flujo de combustible, cfld (V)'),
+      U(8, 'Control de flujo de aire, card (V)'), U(9, 'Volumen de agua del domo, vdrw (ft³)'),
+      U(20, 'Metal de la pared de agua, twwm (°R)'), U(23, 'Vel. bomba de recirculación, nrp (rad/s)')] },
+    hog: { tit: 'Panel del hogar y los ventiladores', rect: [262, 232, 338, 322], graf: [
+      U(19, 'Control de presión del hogar, cfnd (V)'), U(21, 'Vent. de tiro forzado, nfd (rad/s)'),
+      U(22, 'Vent. de tiro inducido, nid (rad/s)')] },
     sob: { tit: 'Panel del sobrecalentador', rect: [196, 22, 505, 88], graf: [
-      { tit: 'TSSO: vapor sobrecalentado (°R)', s: [{ v: Z.tsso, n: 'TSSO' }, { v: Z.ktss, n: 'consigna', c: 'ref' }] },
-      { tit: 'PSSO: presión del sobrecalentado (psia)', s: [{ v: Z.psso, n: 'PSSO' }, { v: Z.kpsso, n: 'consigna', c: 'ref' }] },
-      { tit: 'Salida del sobrecalentador primario (°R)', s: [{ v: Z.tpso, n: 'temperatura' }] },
-      { tit: 'Atemperación del sobrecalentador', s: [{ v: Z.wsy, n: 'flujo (lb/s)' }] }] },
+      U(3, 'Presión de estrangulamiento, psso (psia)'), U(13, 'Entalpía sobrecalentado, hsso (Btu/lb)'),
+      U(15, 'Control temp. sobrecalentado, csyd (V)')] },
     rec: { tit: 'Panel del recalentador', rect: [612, 242, 938, 302], graf: [
-      { tit: 'TRHO: vapor recalentado (°R)', s: [{ v: Z.trho, n: 'TRHO' }, { v: Z.ktrh, n: 'consigna', c: 'ref' }] },
-      { tit: 'Entalpía del recalentado (Btu/lb)', s: [{ v: Z.hrho, n: 'entalpía' }] },
-      { tit: 'Presión del recalentado (psia)', s: [{ v: Z.prho, n: 'presión' }] },
-      { tit: 'Mandos (V)', s: [{ v: Z.cxgg, n: 'inclinación de quemadores (CXGG)' }, { v: Z.cgrd, n: 'recirculación de gases', c: '2' }] }] },
+      U(14, 'Entalpía del recalentado, hrho (Btu/lb)'), U(16, 'Control temp. recalentado, cxggd (V)'),
+      U(18, 'Recirculación de gases, cgrd (V)')] },
     tur: { tit: 'Panel de la turbina', rect: [548, 22, 1252, 218], graf: [
-      { tit: 'Potencia (MW)', s: [{ v: Z.mwo, n: 'potencia' }, { v: z => 120 * z[Z.ldc], n: 'demanda de carga', c: 'ref' }] },
-      { tit: 'Velocidad de la turbina (rad/s)', s: [{ v: Z.ntr, n: 'velocidad' }] },
-      { tit: 'Flujo de vapor a la turbina AP (lb/s)', s: [{ v: Z.whp, n: 'flujo' }] },
-      { tit: 'Válvula gobernadora (% de apertura)', s: [{ v: z => 100 * z[Z.agv], n: 'apertura' }] }] },
+      U(1, 'Velocidad de la turbina, ntr (rad/s)'), U(2, 'Potencia generada, mwo (MW)'),
+      U(4, 'Flujo de vapor principal, whp (lb/s)'), U(6, 'Control de la válvula gobernadora, cacvd (V)')] },
     con: { tit: 'Panel del condensador', rect: [1098, 272, 1188, 528], graf: [
-      { tit: 'Presión del condensador (psia)', s: [{ v: Z.pcn, n: 'presión' }] },
-      { tit: 'Temperatura del condensado (°R)', s: [{ v: Z.tcn, n: 'temperatura' }] },
-      { tit: 'Flujo de condensado (lb/s)', s: [{ v: Z.wcp, n: 'flujo' }] },
-      { tit: 'Velocidad de la bomba de condensado (rad/s)', s: [{ v: Z.ncp, n: 'velocidad' }] }] },
+      U(12, 'Control de flujo de condensado, cdwd (V)'), U(24, 'Velocidad de la bomba de condensado, ncp (rad/s)')] },
     agu: { tit: 'Panel del agua de alimentación', rect: [150, 488, 1048, 608], graf: [
-      { tit: 'Flujos (lb/s)', s: [{ v: Z.wfw, n: 'agua de alimentación' }, { v: Z.wsso, n: 'vapor a la turbina', c: '2' }] },
-      { tit: 'Velocidad de la bomba de alimentación (rad/s)', s: [{ v: Z.nfp, n: 'velocidad' }] },
-      { tit: 'Volumen de agua del deareador (ft³)', s: [{ v: Z.vdew, n: 'agua' }] },
-      { tit: 'Temperaturas (°R)', s: [{ v: Z.thho, n: 'salida del calentador AP' }, { v: Z.teco, n: 'salida del economizador', c: '2' }] }] } };
+      U(11, 'Control agua de alimentación, cfwd (V)'), U(17, 'Vel. bomba de alimentación, nfp (rad/s)'),
+      U(10, 'Vol. agua del deareador, vdew (ft³)')] } };
+  const C2 = '#2e8b57';
   let panelAct = null;
 
   function construyePaneles() {
@@ -2352,6 +2337,7 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
     panelAct = k; const d = PANELES[k], win = $('panel');
     $('panelTit').textContent = d.tit;
     document.querySelectorAll('#barraPaneles button').forEach(b => b.classList.toggle('activa', b.dataset.k === k));
+    $('panelCuerpo').style.setProperty('--cols', d.graf.length === 3 || d.graf.length === 6 ? 3 : 2);
     $('panelCuerpo').innerHTML = d.graf.map((g, i) => '<div class="pg"><canvas id="pc' + i + '"></canvas><div class="pley" id="pl' + i + '"></div></div>').join('');
     win.hidden = false; panelActualiza();
   }
@@ -2368,10 +2354,11 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
     const d = PANELES[panelAct], c = R ? R.cfg : cfg(), dur = c.dur;
     const B = R && $('base').checked && R.cfg.ctrl !== 'pi' ? base[c.pctIni + '_' + c.pctFin + '_' + c.dur] : null;
     const colC = colorCtrl(c.ctrl);
-    d.graf.forEach((g, i) => {
+    d.graf.forEach((g0, i) => {
+      const g = { tit: g0.tit, s: g0.s.filter(q => !q.soloSTC || c.ctrl !== 'pi') };
       const cv = $('pc' + i); if (!cv) return;
       const ser = [];
-      if (B) g.s.forEach(s => { if (s.c !== 'ref') { const q = serieZ(B, s.v); ser.push({ x: q.x, y: q.y, color: '#b9b9c0', ancho: 1.2 }); } });
+      if (B) g.s.forEach(s => { if (s.c !== 'ref' && !s.soloSTC) { const q = serieZ(B, s.v); ser.push({ x: q.x, y: q.y, color: '#b9b9c0', ancho: 1.2 }); } });
       g.s.forEach(s => {
         const q = serieZ(R, s.v);
         ser.push({ x: q.x, y: q.y, color: s.c === 'ref' ? '#000' : s.c === '2' ? C2 : colC, ancho: s.c === 'ref' ? 1 : 1.7, disc: s.c === 'ref' });
@@ -2381,7 +2368,7 @@ window.DATOS = {"M":{"th":[[17.289196554770268,-0.04072452936703676,1.7373632614
       if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
       const m = Math.max(0.08 * (hi - lo), 1e-3 * Math.max(Math.abs(hi), 1)); lo -= m; hi += m;
       dibujaGraf({ tit: g.tit, lim: [lo, hi] }, dur, ser, cv, cv.clientWidth, cv.clientHeight);
-      const ley = g.s.map(s => '<span><i style="border-color:' + (s.c === 'ref' ? '#000' : s.c === '2' ? C2 : colC) + (s.c === 'ref' ? ';border-top-style:dashed' : '') + '"></i>' + s.n + '</span>');
+      const ley = g.s.map(s => '<span><i style="border-color:' + (s.c === 'ref' ? '#000' : s.c === '2' ? C2 : colC) + (s.c === 'ref' ? ';border-top-style:dashed' : '') + '"></i>' + (s.c || (s.nPropio && c.ctrl !== 'pi') ? s.n : nombreCtrl(c.ctrl)) + '</span>');
       if (B) ley.push('<span><i style="border-color:#b9b9c0"></i>PI de Usoro</span>');
       $('pl' + i).innerHTML = ley.join('');
     });
