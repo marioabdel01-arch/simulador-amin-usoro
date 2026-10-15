@@ -7,6 +7,9 @@ necesita MATLAB ni instalar nada.
 
 **Abrir el simulador:** https://marioabdel01-arch.github.io/simulador-amin-usoro/
 
+**Guía en video** (unos 10 minutos, narrada y con subtítulos): botón «▶ Guía en video» de la
+página, o https://marioabdel01-arch.github.io/simulador-amin-usoro/#video
+
 ## Qué simula
 
 - **Planta:** el modelo no lineal de 47 estados de Usoro, con sus lazos PI
@@ -60,10 +63,11 @@ node verificacion/verifica.js
 | Archivo | Contenido |
 |---|---|
 | `index.html`, `css/`, `js/app.js` | interfaz |
+| `guia_simulador.mp4` | guía en video del simulador |
 | `js/digpte47.js`, `js/funciones.js` | modelo de 47 estados de Usoro (traducido de MATLAB) |
 | `js/sim.js` | RLS, ley de control, tabla por carga y lazo de simulación |
 | `js/datos.js` | parámetros de la planta, modelo ARX, tabla por carga, covarianza inicial y estados estacionarios |
-| `img/esquema_planta.png` | esquema de la planta |
+| `img/esquema_planta.svg` | esquema de la planta (vectorial) |
 | `verificacion/` | corridas de referencia de MATLAB y el script que las compara |
 
 ## Insertarlo en otra página
@@ -84,8 +88,7 @@ reproducción.
 - Usoro, P. B. (1977). *Modeling and simulation of a drum boiler-turbine power
   plant under emergency state control* [Tesis de maestría, MIT].
 - Quintero-Mármol Márquez, E. (2025). *Plantas termoeléctricas: análisis
-  dinámico, modelado, simulación y control*. TecNM/CENIDET. (Esquema de la
-  planta.)
+  dinámico, modelado, simulación y control*. TecNM/CENIDET. (Esquema de la planta, redibujado en formato vectorial.)
 - Quintero-Mármol Márquez, E. (2026). *Programación asistida por inteligencia
   artificial generativa de modelos de proceso para plantas termoeléctricas: el
   caso del modelo Usoro de 47.º orden* [Documento de trabajo]. TecNM/CENIDET.
